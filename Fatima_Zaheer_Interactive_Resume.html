@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Candidate Dossier | Fatima Zaheer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Chosen Palette: Corporate Slate & Blue (Slate-900, Blue-600, Gray-100, White) to reflect professional analytics and reporting. -->
+    <!-- Application Structure Plan: A Dashboard-style Single Page Application. Chosen because Oshodata specializes in reporting workflows and analytics; presenting the resume AS an interactive reporting dashboard demonstrates the candidate's core competency immediately. Sections include 'Executive Summary' (Overview), 'Technical Proficiency' (Skills), 'Professional Trajectory' (Experience), and 'Research & Proptech Alignment' (Projects). Users navigate via a sidebar to explore different facets of the candidate's profile. -->
+    <!-- Visualization & Content Choices: 1. Skills Radar Chart (Chart.js) -> Goal: Inform on balanced capabilities -> Justification: Quickly shows the mix of technical vs domain expertise. 2. Tool Proficiency Bar Chart (Chart.js) -> Goal: Compare tool knowledge -> Justification: Highlights the exact tools requested by Oshodata (Power BI, SQL, Python). 3. Interactive Cards/Timelines -> Goal: Organize Experience/Projects -> Justification: Allows user-driven exploration without overwhelming text. NO SVG/Mermaid used. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+
+        /* CRITICAL CHART CONTAINER STYLING */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 650px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        .nav-item.active {
+            background-color: #2563eb;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .unicode-icon {
+            font-size: 1.25rem;
+            line-height: 1;
+            display: inline-block;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body class="flex flex-col md:flex-row h-screen overflow-hidden">
+
+    <!-- Sidebar Navigation -->
+    <nav class="bg-slate-900 text-slate-300 w-full md:w-72 flex-shrink-0 flex flex-col z-20 shadow-xl">
+        <div class="p-6 border-b border-slate-700 bg-slate-950 text-center">
+            <div class="w-20 h-20 mx-auto bg-blue-600 rounded-full flex items-center justify-center text-white text-3xl font-bold mb-3 border-4 border-slate-800 shadow-inner">
+                FZ
+            </div>
+            <h1 class="text-xl font-bold text-white tracking-wide">FATIMA ZAHEER</h1>
+            <p class="text-sm text-blue-400 mt-1">Data Analytics & Economics</p>
+            <div class="mt-4 flex justify-center space-x-3 text-lg">
+                <a href="#" class="hover:text-white transition-colors" title="LinkedIn"><span class="unicode-icon">🔗</span></a>
+                <a href="#" class="hover:text-white transition-colors" title="GitHub"><span class="unicode-icon">💻</span></a>
+                <a href="mailto:fatimazaheer7327@gmail.com" class="hover:text-white transition-colors" title="Email"><span class="unicode-icon">📧</span></a>
+            </div>
+        </div>
+        
+        <div class="flex-1 overflow-y-auto py-4">
+            <ul class="space-y-1 px-3">
+                <li>
+                    <button onclick="navigate('overview')" id="nav-overview" class="nav-item w-full flex items-center px-4 py-3 rounded-lg text-left hover:bg-slate-800 transition-colors active">
+                        <span class="unicode-icon mr-3">📊</span> Executive Summary
+                    </button>
+                </li>
+                <li>
+                    <button onclick="navigate('skills')" id="nav-skills" class="nav-item w-full flex items-center px-4 py-3 rounded-lg text-left hover:bg-slate-800 transition-colors">
+                        <span class="unicode-icon mr-3">🛠️</span> Technical Proficiency
+                    </button>
+                </li>
+                <li>
+                    <button onclick="navigate('experience')" id="nav-experience" class="nav-item w-full flex items-center px-4 py-3 rounded-lg text-left hover:bg-slate-800 transition-colors">
+                        <span class="unicode-icon mr-3">💼</span> Professional Trajectory
+                    </button>
+                </li>
+                <li>
+                    <button onclick="navigate('projects')" id="nav-projects" class="nav-item w-full flex items-center px-4 py-3 rounded-lg text-left hover:bg-slate-800 transition-colors">
+                        <span class="unicode-icon mr-3">📈</span> Research & Reporting
+                    </button>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="p-4 border-t border-slate-800 text-xs text-slate-500 text-center">
+            Optimized for Oshodata Application <br> Noida, Uttar Pradesh
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 overflow-y-auto relative bg-slate-50 w-full">
+        <header class="bg-white shadow-sm sticky top-0 z-10 p-4 px-8 flex justify-between items-center hidden md:flex">
+            <h2 id="current-section-title" class="text-2xl font-semibold text-slate-800">Executive Summary</h2>
+            <div class="text-sm text-slate-500 font-medium bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
+                <span class="unicode-icon text-green-500 mr-1">🟢</span> Available to Join Immediately
+            </div>
+        </header>
+
+        <div class="p-4 md:p-8 max-w-7xl mx-auto" id="content-container">
+            <!-- Content gets injected here via JS -->
+        </div>
+    </main>
+
+    <script>
+        // --- Data Storage ---
+        const candidateData = {
+            summary: "Data Analytics & Economics Post-graduate highly proficient in gathering, organizing, and analyzing complex datasets to create insightful reports. Equipped with strong analytical skills and hands-on experience in Power BI, SQL, Python, and Advanced Excel for data manipulation and visualization. Proven ability to automate reporting workflows, perform statistical analysis, and effectively present data-driven findings to stakeholders. Eager to leverage my background in Economics and Statistics to optimize operational processes and build scalable reporting environments for the real estate and proptech sectors at Oshodata.",
+            metrics: [
+                { label: "Master's CGPA", value: "8.26", desc: "Amity University (2026)" },
+                { label: "Bachelor's CGPA", value: "7.50", desc: "Delhi University (2023)" },
+                { label: "Data Tools", value: "4+", desc: "PowerBI, SQL, Python, Excel" },
+                { label: "Publications", value: "1", desc: "IGI Global Book Chapter" }
+            ],
+            skillsData: {
+                categories: ['Data Manipulation', 'Visualization & Reporting', 'Domain Expertise (Econ)', 'Statistical Analysis', 'Process Optimization', 'Communication'],
+                levels: [90, 95, 85, 88, 80, 92],
+                tools: ['Advanced Excel', 'Power BI', 'Python (Pandas/NumPy)', 'SQL', 'Tableau', 'Stata'],
+                toolLevels: [95, 90, 85, 80, 75, 85]
+            },
+            experience: [
+                {
+                    role: "Data Science Intern",
+                    company: "Tiger Analytics, India",
+                    date: "Jan 2025 - Present",
+                    icon: "🐅",
+                    points: [
+                        "<strong>Data Manipulation & Analytics:</strong> Gathered, organized, and analyzed large-scale datasets (>100,000 rows) using Python and SQL, ensuring high accuracy for downstream statistical analysis.",
+                        "<strong>Insightful Reporting:</strong> Developed automated, interactive Power BI and Excel dashboards, creating compelling visual representations of key metrics. Streamlined reporting workflows and reduced manual effort by 40%.",
+                        "<strong>Stakeholder Communication:</strong> Collaborated closely with internal cross-functional teams and effectively presented data-driven findings to senior management."
+                    ]
+                },
+                {
+                    role: "Business Analyst Intern",
+                    company: "Analy Assist",
+                    date: "2022",
+                    icon: "🏢",
+                    points: [
+                        "<strong>Process Optimization:</strong> Processed and interpreted complex client requirements to develop analytical frameworks and optimize operational processes.",
+                        "<strong>Presentations:</strong> Conveyed analytical insights and data-driven findings effectively to prospective clients through well-documented presentations."
+                    ]
+                }
+            ],
+            projects: [
+                {
+                    type: "Reporting Tool",
+                    title: "Sectoral Reporting Dashboard",
+                    tech: "Power BI & Advanced Excel",
+                    icon: "📊",
+                    desc: "Extracted and manipulated raw industrial data using Advanced Excel. Created a dynamic Power BI dashboard to identify trends, patterns, and correlations in sectoral growth. Delivered a scalable reporting tool providing visual representations of market volatility."
+                },
+                {
+                    type: "Publication",
+                    title: "ASEAN Through Time: Navigating Great Power Rivalry",
+                    tech: "IGI Global (2025)",
+                    icon: "📚",
+                    desc: "Gathered and organized complex geopolitical and economic historical data, synthesizing it into a structured, insightful report published for a global audience."
+                },
+                {
+                    type: "Econometric Research",
+                    title: "Growth and Unemployment in India",
+                    tech: "Python & Stata",
+                    icon: "📈",
+                    desc: "Collated 33 years of macroeconomic data from World Bank API. Applied multivariate regression and statistical analysis to identify correlations between capital investment and employment generation. Presented at Amity School of Economics."
+                }
+            ]
+        };
+
+        // --- State Management ---
+        let currentChartInstance = null;
+        let secondaryChartInstance = null;
+
+        // --- View Templates ---
+        const views = {
+            overview: `
+                <div class="fade-in space-y-8">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                        <p class="text-slate-700 text-lg leading-relaxed mb-4">
+                            <span class="font-semibold text-blue-700">Objective for Oshodata:</span> ${candidateData.summary}
+                        </p>
+                    </div>
+
+                    <h3 class="text-xl font-semibold text-slate-800 border-b pb-2">Key Performance Indicators</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        ${candidateData.metrics.map(m => `
+                            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-100 border-l-4 border-l-blue-500 hover:shadow-md transition-shadow">
+                                <div class="text-3xl font-bold text-slate-800">${m.value}</div>
+                                <div class="text-sm font-semibold text-slate-600 mt-1">${m.label}</div>
+                                <div class="text-xs text-slate-400 mt-2">${m.desc}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-8 mt-8">
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                            <h3 class="text-lg font-semibold text-slate-800 mb-4">Competency Distribution</h3>
+                            <div class="chart-container">
+                                <canvas id="radarChart"></canvas>
+                            </div>
+                            <p class="text-sm text-slate-500 mt-4 text-center">Balanced profile of technical analysis and economic domain expertise.</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                            <h3 class="text-lg font-semibold text-slate-800 mb-4">Education Profile</h3>
+                            <ul class="space-y-4">
+                                <li class="flex items-start">
+                                    <span class="unicode-icon text-blue-600 mr-3 mt-1">🎓</span>
+                                    <div>
+                                        <h4 class="font-semibold text-slate-800">Master of Arts in Business Economics</h4>
+                                        <p class="text-sm text-slate-600">Amity University, Noida | 2024 - 2026</p>
+                                        <span class="inline-block mt-1 px-2 py-1 bg-green-100 text-green-800 text-xs font-bold rounded">CGPA: 8.26</span>
+                                    </div>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="unicode-icon text-slate-400 mr-3 mt-1">🎓</span>
+                                    <div>
+                                        <h4 class="font-semibold text-slate-800">Bachelor of Arts in Economics</h4>
+                                        <p class="text-sm text-slate-600">Delhi University | 2020 - 2023</p>
+                                        <span class="inline-block mt-1 px-2 py-1 bg-slate-100 text-slate-700 text-xs font-bold rounded">CGPA: 7.5</span>
+                                    </div>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="unicode-icon text-slate-400 mr-3 mt-1">🏫</span>
+                                    <div>
+                                        <h4 class="font-semibold text-slate-800">Intermediate - Commerce</h4>
+                                        <p class="text-sm text-slate-600">SJS Public School | 2020</p>
+                                        <span class="inline-block mt-1 px-2 py-1 bg-slate-100 text-slate-700 text-xs font-bold rounded">91.2%</span>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `,
+            skills: `
+                <div class="fade-in space-y-8">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mb-6">
+                        <p class="text-slate-700">
+                            A breakdown of technical proficiencies directly applicable to Oshodata's requirements for data manipulation, visualization, and actionable insights.
+                        </p>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                        <h3 class="text-lg font-semibold text-slate-800 mb-4">Oshodata Target Tools Proficiency</h3>
+                        <div class="chart-container">
+                            <canvas id="barChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="bg-slate-800 text-white p-6 rounded-xl shadow-md">
+                            <span class="unicode-icon text-3xl mb-3 block text-blue-400">🗄️</span>
+                            <h4 class="font-bold mb-2 border-b border-slate-600 pb-2">Data Manipulation</h4>
+                            <p class="text-sm text-slate-300">Python (Pandas, NumPy), SQL, Advanced Excel (Pivot Tables, VLOOKUP, Power Query), Data Management.</p>
+                        </div>
+                        <div class="bg-blue-600 text-white p-6 rounded-xl shadow-md">
+                            <span class="unicode-icon text-3xl mb-3 block text-blue-200">📊</span>
+                            <h4 class="font-bold mb-2 border-b border-blue-400 pb-2">Reporting Workflows</h4>
+                            <p class="text-sm text-blue-100">Power BI, Tableau, Dashboard Creation, Actionable Insights generation for stakeholders.</p>
+                        </div>
+                        <div class="bg-slate-100 text-slate-800 p-6 rounded-xl shadow-sm border border-slate-300">
+                            <span class="unicode-icon text-3xl mb-3 block text-slate-600">📈</span>
+                            <h4 class="font-bold mb-2 border-b border-slate-300 pb-2">Domain Expertise</h4>
+                            <p class="text-sm text-slate-600">Economics, Statistics, Trend Identification, Correlation & Regression Analysis, Process Optimization.</p>
+                        </div>
+                    </div>
+                </div>
+            `,
+            experience: `
+                <div class="fade-in">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mb-8">
+                        <p class="text-slate-700">
+                            Professional experience focused on building scalable reporting environments, optimizing processes, and extracting actionable insights from large datasets.
+                        </p>
+                    </div>
+
+                    <div class="relative border-l-4 border-blue-600 ml-4 md:ml-12 pl-6 md:pl-10 py-2 space-y-10">
+                        ${candidateData.experience.map(exp => `
+                            <div class="relative">
+                                <div class="absolute -left-10 md:-left-14 top-0 bg-white border-4 border-blue-600 w-10 h-10 rounded-full flex items-center justify-center text-lg shadow-md z-10">
+                                    <span class="unicode-icon">${exp.icon}</span>
+                                </div>
+                                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 hover:border-blue-300 transition-colors">
+                                    <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-4 border-b pb-4">
+                                        <div>
+                                            <h3 class="text-xl font-bold text-slate-800">${exp.role}</h3>
+                                            <h4 class="text-lg text-blue-600 font-medium">${exp.company}</h4>
+                                        </div>
+                                        <div class="mt-2 md:mt-0 px-3 py-1 bg-slate-100 text-slate-700 font-semibold rounded-full text-sm inline-block">
+                                            ${exp.date}
+                                        </div>
+                                    </div>
+                                    <ul class="space-y-3 text-slate-600 text-sm leading-relaxed">
+                                        ${exp.points.map(pt => `<li class="flex items-start"><span class="unicode-icon text-blue-500 mr-2 text-xs mt-1">▶</span> <span>${pt}</span></li>`).join('')}
+                                    </ul>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `,
+            projects: `
+                <div class="fade-in space-y-8">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                        <p class="text-slate-700">
+                            Academic and professional projects demonstrating proficiency in statistical modeling, data-driven reporting, and synthesizing complex datasets into clear narratives.
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        ${candidateData.projects.map(proj => `
+                            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col hover:shadow-lg transition-shadow">
+                                <div class="bg-slate-800 p-4 border-b-4 border-blue-500 flex justify-between items-center">
+                                    <span class="text-xs font-bold uppercase tracking-wider text-blue-300">${proj.type}</span>
+                                    <span class="text-2xl">${proj.icon}</span>
+                                </div>
+                                <div class="p-6 flex-1 flex flex-col">
+                                    <h3 class="text-lg font-bold text-slate-800 mb-2">${proj.title}</h3>
+                                    <span class="inline-block px-2 py-1 bg-slate-100 text-slate-600 text-xs font-semibold rounded mb-4 self-start border border-slate-200">
+                                        ${proj.tech}
+                                    </span>
+                                    <p class="text-sm text-slate-600 flex-1 leading-relaxed">
+                                        ${proj.desc}
+                                    </p>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <div class="bg-blue-50 p-6 rounded-xl shadow-sm border border-blue-200 mt-8">
+                         <h3 class="text-lg font-bold text-slate-800 mb-3 flex items-center"><span class="unicode-icon mr-2 text-blue-600">🏛️</span> Leadership & Teamwork</h3>
+                         <ul class="space-y-3 text-sm text-slate-700">
+                            <li class="flex items-start"><span class="unicode-icon mr-2 mt-0.5">🔹</span> <strong>Class Representative (MA Economics):</strong> Collaborated efficiently with faculty and students, managing time effectively to handle multiple responsibilities.</li>
+                            <li class="flex items-start"><span class="unicode-icon mr-2 mt-0.5">🔹</span> <strong>Team Lead, SPIC MACAY:</strong> Led a 30-member team to organize national events, demonstrating strong teamwork and organizational skills.</li>
+                         </ul>
+                    </div>
+                </div>
+            `
+        };
+
+        // --- Core Interaction & Navigation ---
+        function navigate(viewId) {
+            // Update active states in sidebar
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById(`nav-${viewId}`).classList.add('active');
+
+            // Update title
+            const titles = {
+                'overview': 'Executive Summary',
+                'skills': 'Technical Proficiency',
+                'experience': 'Professional Trajectory',
+                'projects': 'Research & Reporting'
+            };
+            const titleEl = document.getElementById('current-section-title');
+            if(titleEl) titleEl.innerText = titles[viewId];
+
+            // Render content
+            const container = document.getElementById('content-container');
+            container.innerHTML = views[viewId];
+
+            // Clean up charts to prevent memory leaks and canvas reuse errors
+            if (currentChartInstance) currentChartInstance.destroy();
+            if (secondaryChartInstance) secondaryChartInstance.destroy();
+
+            // Initialize specific view logic
+            if (viewId === 'overview') {
+                initRadarChart();
+            } else if (viewId === 'skills') {
+                initBarChart();
+            }
+        }
+
+        // --- Chart Configurations ---
+        Chart.defaults.font.family = "'Inter', sans-serif";
+        Chart.defaults.color = '#64748b';
+
+        function initRadarChart() {
+            const ctx = document.getElementById('radarChart').getContext('2d');
+            currentChartInstance = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: candidateData.skillsData.categories,
+                    datasets: [{
+                        label: 'Competency Level',
+                        data: candidateData.skillsData.levels,
+                        backgroundColor: 'rgba(37, 99, 235, 0.2)',
+                        borderColor: 'rgba(37, 99, 235, 1)',
+                        pointBackgroundColor: 'rgba(37, 99, 235, 1)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgba(37, 99, 235, 1)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(148, 163, 184, 0.3)' },
+                            grid: { color: 'rgba(148, 163, 184, 0.3)' },
+                            pointLabels: {
+                                font: { size: window.innerWidth < 768 ? 10 : 12, weight: '600' },
+                                color: '#334155'
+                            },
+                            ticks: { display: false, min: 0, max: 100 }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            padding: 12,
+                            titleFont: { size: 14 },
+                            bodyFont: { size: 13 },
+                            callbacks: {
+                                label: function(context) {
+                                    return `Proficiency: ${context.raw}%`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function initBarChart() {
+            const ctx = document.getElementById('barChart').getContext('2d');
+            currentChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: candidateData.skillsData.tools,
+                    datasets: [{
+                        label: 'Proficiency Level (%)',
+                        data: candidateData.skillsData.toolLevels,
+                        backgroundColor: [
+                            'rgba(37, 99, 235, 0.8)', // Blue
+                            'rgba(245, 158, 11, 0.8)', // Amber (Power BI colors)
+                            'rgba(16, 185, 129, 0.8)', // Emerald
+                            'rgba(139, 92, 246, 0.8)', // Purple
+                            'rgba(239, 68, 68, 0.8)',  // Red
+                            'rgba(100, 116, 139, 0.8)' // Slate
+                        ],
+                        borderRadius: 6,
+                        borderSkipped: false,
+                    }]
+                },
+                options: {
+                    indexAxis: 'y', // Horizontal bar chart
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 100,
+                            grid: { color: 'rgba(148, 163, 184, 0.2)' }
+                        },
+                        y: {
+                            grid: { display: false },
+                            ticks: {
+                                font: { weight: '600' },
+                                color: '#1e293b',
+                                callback: function(value) {
+                                    // Label wrapping logic (max 16 chars per line approx)
+                                    let label = this.getLabelForValue(value);
+                                    if(label.length > 18) {
+                                        let split = label.split(' ');
+                                        if(split.length > 1) return [split[0], split.slice(1).join(' ')];
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            padding: 12
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize application
+        window.onload = () => {
+            navigate('overview');
+            
+            // Handle window resize for charts
+            window.addEventListener('resize', () => {
+                if(currentChartInstance) {
+                    currentChartInstance.resize();
+                }
+            });
+        };
+    </script>
+</body>
+</html>
